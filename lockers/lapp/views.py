@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Casillero, Usuario
+from .email_operations import EmailOperations  # Importa la clase
+from django.conf import settings  # Para obtener las credenciales desde settings.py
 
 # Vista para mostrar el estado de los casilleros
 def casilleros_list(request):
@@ -25,16 +27,38 @@ def usuario_create(request):
     return render(request, 'usuario_form.html', {'form': form})
 
 # Vista para editar un usuario
+# Vista para editar un usuario
 def usuario_update(request, usuario_id):
     usuario = get_object_or_404(Usuario, id=usuario_id)
+    
     if request.method == 'POST':
         form = UsuarioForm(request.POST, instance=usuario)
         if form.is_valid():
             form.save()
+
+            # Configuración del correo electrónico
+            asunto = 'Tu contraseña ha sido cambiada'
+            mensaje = f'Hola {usuario.name}, tu contraseña ha sido actualizada con éxito.'
+            destinatarios = [usuario.email]  # Usa el email del usuario en la base de datos
+
+            # Instancia de EmailOperations sin pasar username y password
+            email_ops = EmailOperations()  # No necesitas pasar username ni password aquí
+            
+            # Enviar el correo
+            email_ops.send_email(
+                receivers_email=destinatarios,
+                subject=asunto,
+                message=mensaje
+            )
+
             return redirect('usuarios_list')
+    
     else:
         form = UsuarioForm(instance=usuario)
+    
     return render(request, 'usuario_form.html', {'form': form})
+
+
 
 # Vista para eliminar un usuario
 def usuario_delete(request, usuario_id):
