@@ -14,7 +14,19 @@
     <h2>Cambiar Contraseña</h2>
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}  <!-- Mostrar el campo de la nueva contraseña -->
+        
+        <!-- Solo mostrar el campo de la nueva contraseña sin los errores repetidos -->
+        <label for="{{ form.password.id_for_label }}">Contraseña</label>
+        {{ form.password }}
+
+        {% if form.password.errors %}
+            <ul>
+                {% for error in form.password.errors %}
+                    <li style="color: red;">{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
         <button type="submit">Cambiar Contraseña</button>
     </form>
 

@@ -3,6 +3,8 @@ from .models import Casillero, Usuario
 from .email_operations import EmailOperations  # Importa la clase
 from django.conf import settings  # Para obtener las credenciales desde settings.py
 from .forms import CasilleroPasswordForm
+from .forms import UsuarioForm  # Asegúrate de crear un formulario para Usuario
+from django.core.mail import EmailMessage
 
 # Vista para mostrar el estado de los casilleros
 def casilleros_list(request):
@@ -16,13 +18,28 @@ def casillero_detail(request, casillero_id):
         form = CasilleroPasswordForm(request.POST, instance=casillero)
         if form.is_valid():
             form.save()  # Guarda la nueva contraseña
+            
+            # Enviar correo electrónico notificando el cambio de contraseña
+            asunto = 'Tu contraseña ha sido cambiada'
+            mensaje = f'<p>Hola {casillero.usuario.name}, tu contraseña ha sido cambiada con éxito.</p>\n Tu Nueva contraseña es: {casillero.password}'
+            destinatarios = [casillero.usuario.email]
+
+            # Usar EmailMessage para enviar el correo en formato HTML
+            email = EmailMessage(
+                asunto,  # Asunto del correo
+                mensaje,  # Cuerpo del mensaje (en HTML)
+                settings.DEFAULT_FROM_EMAIL,  # Correo desde el que se envía
+                destinatarios,  # Lista de destinatarios
+            )
+            email.content_subtype = "html"  # Indica que el contenido es HTML
+            email.send()  # Envía el correo
+
             return redirect('locker_detail', casillero_id=casillero.id)  # Redirige a la misma vista para ver los cambios
     else:
         form = CasilleroPasswordForm(instance=casillero)
 
     return render(request, 'casillero_detail.html', {'casillero': casillero, 'form': form})
 
-from .forms import UsuarioForm  # Asegúrate de crear un formulario para Usuario
 
 # Vista para listar usuarios
 def usuarios_list(request):
@@ -40,7 +57,7 @@ def usuario_create(request):
         form = UsuarioForm()
     return render(request, 'usuario_form.html', {'form': form})
 
-# Vista para editar un usuario
+
 # Vista para editar un usuario
 def usuario_update(request, usuario_id):
     usuario = get_object_or_404(Usuario, id=usuario_id)
