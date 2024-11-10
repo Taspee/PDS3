@@ -60,11 +60,12 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-
+**/migrations/
+*.sqlite3
 # Flask stuff:
 instance/
 .webassets-cache
-
+.env
 # Scrapy stuff:
 .scrapy
 
@@ -113,7 +114,7 @@ ipython_config.py
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
-
+__pycache__/
 # Celery stuff
 celerybeat-schedule
 celerybeat.pid
