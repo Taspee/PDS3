@@ -9,36 +9,72 @@ from django.core.mail import EmailMessage
 # Vista para mostrar el estado de los casilleros
 def casilleros_list(request):
     casilleros = Casillero.objects.select_related('usuario').all()  # Obtiene los casilleros con sus usuarios
+    print(casilleros)  # Verifica que los datos están siendo recuperados
     return render(request, 'casilleros_list.html', {'casilleros': casilleros})
+
 def casillero_detail(request, casillero_id):
     casillero = get_object_or_404(Casillero, id=casillero_id)
+    usuarios = Usuario.objects.all()  # Obtén todos los usuarios para mostrarlos en el formulario
 
     if request.method == 'POST':
-        # Si se recibe el formulario para cambiar la contraseña
-        form = CasilleroPasswordForm(request.POST, instance=casillero)
-        if form.is_valid():
-            form.save()  # Guarda la nueva contraseña
-            
-            # Enviar correo electrónico notificando el cambio de contraseña
-            asunto = 'Tu contraseña ha sido cambiada'
-            mensaje = f'<p>Hola {casillero.usuario.name}, tu contraseña ha sido cambiada con éxito.</p>\n Tu Nueva contraseña es: {casillero.password}'
-            destinatarios = [casillero.usuario.email]
+        # Si se presionó el botón para cambiar la contraseña
+        if 'cambiar_contraseña' in request.POST:
+            form = CasilleroPasswordForm(request.POST, instance=casillero)
+            if form.is_valid():
+                form.save()  # Guarda la nueva contraseña
+                
+                # Enviar correo electrónico notificando el cambio de contraseña
+                asunto = 'Tu contraseña ha sido cambiada'
+                mensaje = f"<p>Hola {casillero.usuario.name}, tu contraseña ha sido cambiada con éxito.</p><p>Tu nueva contraseña es: {casillero.password}</p>"
+                destinatarios = [casillero.usuario.email]
 
-            # Usar EmailMessage para enviar el correo en formato HTML
-            email = EmailMessage(
-                asunto,  # Asunto del correo
-                mensaje,  # Cuerpo del mensaje (en HTML)
-                settings.DEFAULT_FROM_EMAIL,  # Correo desde el que se envía
-                destinatarios,  # Lista de destinatarios
-            )
-            email.content_subtype = "html"  # Indica que el contenido es HTML
-            email.send()  # Envía el correo
+                email = EmailMessage(
+                    asunto,
+                    mensaje,
+                    settings.DEFAULT_FROM_EMAIL,
+                    destinatarios,
+                )
+                email.content_subtype = "html"
+                email.send()
 
-            return redirect('locker_detail', casillero_id=casillero.id)  # Redirige a la misma vista para ver los cambios
+                return redirect('locker_detail', casillero_id=casillero.id)  # Redirige para ver los cambios
+
+        # Si se presionó el botón para cambiar el usuario
+        elif 'cambiar_usuario' in request.POST:
+            nuevo_usuario_id = request.POST.get('nuevo_usuario_id')
+            if nuevo_usuario_id:
+                nuevo_usuario = Usuario.objects.get(id=nuevo_usuario_id)
+                casillero.usuario = nuevo_usuario
+                casillero.save()
+
+                # Enviar correo electrónico al nuevo usuario notificando el ID del casillero y su contraseña
+                asunto = 'Nuevo Casillero Asignado'
+                mensaje = f"""
+                <p>Hola {nuevo_usuario.name},</p>
+                <p>Se te ha asignado el Casillero ID: {casillero.id}.</p>
+                <p>Tu contraseña es: {casillero.password}</p>
+                """
+                destinatarios = [nuevo_usuario.email]
+
+                email = EmailMessage(
+                    asunto,
+                    mensaje,
+                    settings.DEFAULT_FROM_EMAIL,
+                    destinatarios,
+                )
+                email.content_subtype = "html"
+                email.send()
+
+                return redirect('locker_detail', casillero_id=casillero.id)
+
     else:
         form = CasilleroPasswordForm(instance=casillero)
 
-    return render(request, 'casillero_detail.html', {'casillero': casillero, 'form': form})
+    return render(request, 'casillero_detail.html', {
+        'casillero': casillero,
+        'form': form,
+        'usuarios': usuarios,  # Pasar la lista de usuarios a la plantilla
+    })
 
 
 # Vista para listar usuarios

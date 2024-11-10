@@ -12,7 +12,9 @@ class UsuarioForm(forms.ModelForm):
 class CasilleroPasswordForm(forms.ModelForm):
     class Meta:
         model = Casillero
-        fields = ['password']  # Asegúrate de que 'password' es el campo que estás usando
+        fields = ['password']  # Campo de contraseña
+    
+    nuevo_usuario_id = forms.ModelChoiceField(queryset=Usuario.objects.all(), required=False, label="Nuevo Usuario")
 
     def clean_password(self):
         password = self.cleaned_data.get('password')

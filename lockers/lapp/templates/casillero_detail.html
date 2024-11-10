@@ -27,7 +27,19 @@
             </ul>
         {% endif %}
         
-        <button type="submit">Cambiar Contraseña</button>
+        <button type="submit" name="cambiar_contraseña">Cambiar Contraseña</button>
+    </form>
+
+    <h2>Cambiar Usuario</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="nuevo_usuario_id">Nuevo Usuario:</label>
+        <select name="nuevo_usuario_id" id="nuevo_usuario_id">
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.id }}">{{ usuario.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" name="cambiar_usuario">Cambiar Usuario</button>
     </form>
 
     <br>
