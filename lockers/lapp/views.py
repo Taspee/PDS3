@@ -2,11 +2,25 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Casillero, Usuario
 from .email_operations import EmailOperations  # Importa la clase
 from django.conf import settings  # Para obtener las credenciales desde settings.py
+from .forms import CasilleroPasswordForm
 
 # Vista para mostrar el estado de los casilleros
 def casilleros_list(request):
     casilleros = Casillero.objects.select_related('usuario').all()  # Obtiene los casilleros con sus usuarios
     return render(request, 'casilleros_list.html', {'casilleros': casilleros})
+def casillero_detail(request, casillero_id):
+    casillero = get_object_or_404(Casillero, id=casillero_id)
+
+    if request.method == 'POST':
+        # Si se recibe el formulario para cambiar la contraseña
+        form = CasilleroPasswordForm(request.POST, instance=casillero)
+        if form.is_valid():
+            form.save()  # Guarda la nueva contraseña
+            return redirect('locker_detail', casillero_id=casillero.id)  # Redirige a la misma vista para ver los cambios
+    else:
+        form = CasilleroPasswordForm(instance=casillero)
+
+    return render(request, 'casillero_detail.html', {'casillero': casillero, 'form': form})
 
 from .forms import UsuarioForm  # Asegúrate de crear un formulario para Usuario
 

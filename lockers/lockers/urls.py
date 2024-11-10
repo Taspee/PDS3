@@ -19,6 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Nuevas para probar modelos y controladores
-    path('lapp/', include('lapp.urls')),
+    path('', include('lapp.urls')),
 ]
+
