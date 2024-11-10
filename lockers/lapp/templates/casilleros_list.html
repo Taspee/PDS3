@@ -13,8 +13,8 @@
         {% for casillero in casilleros %}
             <tr>
                 <td>{{ casillero.id }}</td>
-                <td>{{ casillero.usuario.name }}</td>  <!-- Accede correctamente al nombre del usuario -->
-                <td>{{ casillero.usuario.email }}</td>  <!-- Accede correctamente al email del usuario -->
+                <td>{{ casillero.usuario.name }}</td>
+                <td>{{ casillero.usuario.email }}</td>
                 <td>{{ casillero.password }}</td>
                 <td>
                     <a href="{% url 'locker_detail' casillero.id %}">Ver</a>

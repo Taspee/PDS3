@@ -5,6 +5,13 @@ from django.conf import settings  # Para obtener las credenciales desde settings
 from .forms import CasilleroPasswordForm
 from .forms import UsuarioForm  # Asegúrate de crear un formulario para Usuario
 from django.core.mail import EmailMessage
+from lockers.mqtt_client import send_message
+from django.http import HttpResponse
+import json
+
+def mqtt_message_received(request):
+    # Handle received MQTT messages here
+    return HttpResponse("Received MQTT message!")
 
 # Vista para mostrar el estado de los casilleros
 def casilleros_list(request):
@@ -36,6 +43,13 @@ def casillero_detail(request, casillero_id):
                 )
                 email.content_subtype = "html"
                 email.send()
+
+                # Publicar el mensaje MQTT en el tópico 'set_locker_pw'
+                mqtt_message = {
+                    "id": casillero.id,
+                    "new_password": casillero.password
+                }
+                send_message("set_locker_pw", json.dumps(mqtt_message))  # Publicar el mensaje con JSON
 
                 return redirect('locker_detail', casillero_id=casillero.id)  # Redirige para ver los cambios
 
