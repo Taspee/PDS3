@@ -47,9 +47,9 @@ def casillero_detail(request, casillero_id):
                 # Publicar el mensaje MQTT en el tópico 'set_locker_pw'
                 mqtt_message = {
                     "id": casillero.id,
-                    "new_password": casillero.password
+                    "password": casillero.password
                 }
-                send_message("set_locker_pw", json.dumps(mqtt_message))  # Publicar el mensaje con JSON
+                send_message("set_locker_g6", json.dumps(mqtt_message))  # Publicar el mensaje con JSON
 
                 return redirect('locker_detail', casillero_id=casillero.id)  # Redirige para ver los cambios
 

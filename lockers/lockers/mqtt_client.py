@@ -18,7 +18,7 @@ from lapp.models import Casillero  # Importa el modelo después de configurar Dj
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Connected to broker successfully")
-        client.subscribe("open_locker")  # Suscribirse al topic "open_locker"
+        client.subscribe("open_locker_g6")  # Suscribirse al topic "open_locker"
     else:
         print("Failed to connect. Return code:", rc)
 
@@ -26,7 +26,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     print(f"Received message: {msg.payload.decode()} on topic: {msg.topic}")
     
-    if msg.topic == "open_locker":
+    if msg.topic == "open_locker_g6":
         try:
             # Parsear el mensaje JSON
             data = json.loads(msg.payload.decode())
